@@ -18,7 +18,9 @@ window.onload = function() {
  
   function clear() {
     context.fillStyle = "#ffffff";
-    context.rect(0, 0, 300, 300);
+	var width 	= $(window).width() - 30;
+    var height 	= $(window).height() - 75;
+    context.rect(0, 0, width, height);
     context.fill();
   }
  

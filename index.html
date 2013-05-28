@@ -9,7 +9,8 @@
   </style>
   <script type="text/javascript" src="js/jquery-latest.js"></script>
   <script type="text/javascript" src="js/draw.js"></script>
-  <script type="text/javascript" src="js/colorpicker.js"></script>
+   <script type="text/javascript" src="js/colorpicker.js"></script>
+ <!-- <script type="text/javascript" src="js/pencilDrawing.js"></script> -->
 </head> 
 <body>
 <div style="float:left;"><div id="colorSelector2"><div style="background-color: #00ff00"></div></div><div id="color_pallete"></div></div>
@@ -33,23 +34,25 @@
 <canvas id="canvas_draw" width="300" height="300"></canvas>
 </body>
 </html>
-<script type="text/javascript">
-$(document).ready(function() {
+<!-- <script type="text/javascript">
+/*$(document).ready(function() {
 	var width 	= $(window).width();
     var height 	= $(window).height();
 	$('#canvas_draw').css({'height' : height - 75, 'width' : width - 30});
-	color_picker();
+	//color_picker();
 	$("#click_draw").click(function(){
+		alert('draw');
 		$('#color_click').val(0);
 		$('#draw_click').val(1);
 		$('canvas').removeClass('fill_pointer').addClass('pencil_pointer');
 	});
 	$("#click_paint").click(function(){
+		alert('paint');
 		$('#draw_click').val(0);
 		$('#color_click').val(1);
 		$('canvas').removeClass('pencil_pointer').addClass('fill_pointer');
 	});
-});
+});*/
 function findPos(obj) {
     var curleft = 0, curtop = 0;
     if (obj.offsetParent) {
@@ -78,13 +81,13 @@ colorLayerData   = context.getImageData(0, 0, canvas.width, canvas.height);
 
 function canvas_paint()
 {
-	$("#canvas_draw").live("click", function(e){
+	$("#canvas_draw").click(function(e){
 		var pos    = findPos(this);
 		var mouseX = e.pageX - pos.x;
     	var mouseY = e.pageY - pos.y;
 		if($("#color_click").val() == 1)
 		{
-			$("#loader").show();
+			//$("#loader").show();
 			paintAt(mouseX, mouseY);
 		}
 	});
@@ -115,7 +118,7 @@ function flood(startX, startY)
 	newColorB = curColorIndex['B'];
 	if(clickedColorR == newColorR && clickedColorG == newColorG && clickedColorB == newColorB)
 	{
-		$("#loader").hide();
+		//$("#loader").hide();
 	 	return false;
 	}
     pixelStack = [[startX, startY]];
@@ -170,7 +173,7 @@ function floodFill(pixelPos)
 			pixelStack.push([parseInt(x + 1,10), y]);
 		}
     }
-		$("#loader").hide();
+		//$("#loader").hide();
 	context.putImageData(colorLayerData, 0, 0);
 }
 function isSimilarAsWhite(r,g,b)
@@ -194,4 +197,4 @@ function matchClickedColor(pixelPos)
 	if(isSimilarAsWhite(r,g,b) && isSimilarAsWhite(clickedColorR,clickedColorG,clickedColorB))
 		return true;
 }
-</script>
+</script> -->
