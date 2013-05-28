@@ -9,11 +9,9 @@
   </style>
   <script type="text/javascript" src="js/jquery-latest.js"></script>
   <script type="text/javascript" src="js/draw.js"></script>
-   <script type="text/javascript" src="js/colorpicker.js"></script>
- <!-- <script type="text/javascript" src="js/pencilDrawing.js"></script> -->
 </head> 
 <body>
-<div style="float:left;"><div id="colorSelector2"><div style="background-color: #00ff00"></div></div><div id="color_pallete"></div></div>
+<div style="float:left;"><input type="color" name="color" id="color" value="#00ff00"/></div>
 <div style="float:left;padding-left:50px;">
 <button type="button" name="click_draw" id="click_draw" class="button">
 	<img src="images/pencil_button.png" width="16" height="16" alt="" align="absmiddle"> Draw
@@ -27,32 +25,30 @@
 <div style="float:right;">
 <button id="clear">clear</button><br>
 </div>
-<input type="hidden" id="color" name="color" value="#00ff00" />
 <input type="hidden" name="hid_color" id="hid_color" value="0"/>
 <input type="hidden" name="color_click" id="color_click" value="0" />
 <input type="hidden" name="draw_click" id="draw_click" value="0" />
 <canvas id="canvas_draw" width="300" height="300"></canvas>
 </body>
 </html>
-<!-- <script type="text/javascript">
-/*$(document).ready(function() {
+<script type="text/javascript">
+$(document).ready(function() {
 	var width 	= $(window).width();
     var height 	= $(window).height();
 	$('#canvas_draw').css({'height' : height - 75, 'width' : width - 30});
 	//color_picker();
 	$("#click_draw").click(function(){
-		alert('draw');
 		$('#color_click').val(0);
 		$('#draw_click').val(1);
-		$('canvas').removeClass('fill_pointer').addClass('pencil_pointer');
+		//$('canvas').removeClass('fill_pointer').addClass('pencil_pointer');
 	});
 	$("#click_paint").click(function(){
-		alert('paint');
 		$('#draw_click').val(0);
 		$('#color_click').val(1);
-		$('canvas').removeClass('pencil_pointer').addClass('fill_pointer');
+		
+		//$('canvas').removeClass('pencil_pointer').addClass('fill_pointer');
 	});
-});*/
+});
 function findPos(obj) {
     var curleft = 0, curtop = 0;
     if (obj.offsetParent) {
@@ -197,4 +193,4 @@ function matchClickedColor(pixelPos)
 	if(isSimilarAsWhite(r,g,b) && isSimilarAsWhite(clickedColorR,clickedColorG,clickedColorB))
 		return true;
 }
-</script> -->
+</script>
