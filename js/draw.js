@@ -3,7 +3,7 @@ window.onload = function() {
  
   document.ontouchmove = function(e){ e.preventDefault(); }
  
-  var canvas  = document.getElementById('main');
+  var canvas  = document.getElementById('canvas_draw');
   var canvastop = canvas.offsetTop
  
   var context = canvas.getContext("2d");
@@ -65,4 +65,33 @@ window.onload = function() {
   clearButton.onclick = clear
  
   clear()
+}
+function color_picker()
+{
+	$('#color_pallete').ColorPicker({
+		flat: true,
+		color: '#00ff00',
+		onChange: function(hsb, hex, rgb) {
+			$('#colorSelector2 div').css('backgroundColor', '#' + hex);
+			$('#color').val('#' + hex);
+		},
+		onSubmit: function(hsb, hex, rgb) {
+			$('#colorSelector2 div').css('backgroundColor', '#' + hex);
+			$('#colorSelector2').click();
+		}
+	});
+	$('#color_pallete>div').css('position', 'absolute');
+	var widt = false;
+	$('#colorSelector2').click(function(e) {
+		$('#color_pallete').stop().animate({height: widt ? 0 : 173}, 500);
+		widt = !widt;
+		e.stopPropagation();
+	});
+	$('.colorpicker').click(function(e) {
+		e.stopPropagation();
+	});
+	$("body").click(function() {
+	  $('#color_pallete').stop().animate({height: 0}, 500);
+	  widt = false;
+	});
 }

@@ -1,18 +1,197 @@
- 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html> 
 <head> 
   <meta name="viewport" content="user-scalable=no,initial-scale=1.0,maximum-scale=1.0" />
- 
+  <link rel="stylesheet" type="text/css" href="styles/colorpicker.css">
   <style>
   body { padding:10px; margin:0px; background-color: #ccc; }
-  #main { margin: 10px auto 0px auto; }
+  #canvas_draw { margin: 10px auto 0px auto; }
   </style>
-  
-  <script src="js/draw.js"></script>
+  <script type="text/javascript" src="js/jquery-latest.js"></script>
+  <script type="text/javascript" src="js/draw.js"></script>
+  <script type="text/javascript" src="js/colorpicker.js"></script>
 </head> 
 <body>
+<div style="float:left;"><div id="colorSelector2"><div style="background-color: #00ff00"></div></div><div id="color_pallete"></div></div>
+<div style="float:left;padding-left:50px;">
+<button type="button" name="click_draw" id="click_draw" class="button">
+	<img src="images/pencil_button.png" width="16" height="16" alt="" align="absmiddle"> Draw
+</button>
+</div>
+<div style="float:left;">
+<button type="button" name="click_paint" id="click_paint" class="button">
+	<img src="images/paint_button.png" width="16" height="16" alt="" align="absmiddle"> Color
+</button>
+</div>
+<div style="float:right;">
 <button id="clear">clear</button><br>
-<canvas id="main" width="300" height="300"></canvas>
+</div>
+<input type="hidden" id="color" name="color" value="#00ff00" />
+<input type="hidden" name="hid_color" id="hid_color" value="0"/>
+<input type="hidden" name="color_click" id="color_click" value="0" />
+<input type="hidden" name="draw_click" id="draw_click" value="0" />
+<canvas id="canvas_draw" width="50" height="50"></canvas>
 </body>
 </html>
+<script type="text/javascript">
+$(document).ready(function() {
+	var width 	= $(window).width();
+    var height 	= $(window).height();
+	//$('#canvas_draw').css({'height' : height - 75, 'width' : width - 30});
+	color_picker();
+	$("#click_draw").click(function(){
+		$('#color_click').val(0);
+		$('#draw_click').val(1);
+		$('canvas').removeClass('fill_pointer').addClass('pencil_pointer');
+	});
+	$("#click_paint").click(function(){
+		$('#draw_click').val(0);
+		$('#color_click').val(1);
+		$('canvas').removeClass('pencil_pointer').addClass('fill_pointer');
+	});
+});
+function findPos(obj) {
+    var curleft = 0, curtop = 0;
+    if (obj.offsetParent) {
+        do {
+            curleft += obj.offsetLeft;
+            curtop += obj.offsetTop;
+        } while (obj = obj.offsetParent);
+        return { x: curleft, y: curtop };
+    }
+    return undefined;
+}
+var pixelStack = new Array();
+function HexToRGB(Hex)
+{
+	var Long = parseInt(Hex.replace(/^#/, ""), 16);
+	return {
+		R: (Long >>> 16) & 0xff,
+		G: (Long >>> 8) & 0xff,
+		B: Long & 0xff
+	};
+}
+var canvas  = document.getElementById("canvas_draw");
+var context = canvas.getContext("2d");
+var colorLayerData;
+colorLayerData   = context.getImageData(0, 0, canvas.width, canvas.height);
+
+function canvas_paint()
+{
+	$("#canvas_draw").live("click", function(e){
+		var pos    = findPos(this);
+		var mouseX = e.pageX - pos.x;
+    	var mouseY = e.pageY - pos.y;
+		if($("#color_click").val() == 1)
+		{
+			$("#loader").show();
+			paintAt(mouseX, mouseY);
+		}
+	});
+}
+$("#click_paint").click(function(){
+	canvas_paint();
+});
+
+function paintAt(mouseX, mouseY)
+{
+	flood(mouseX,mouseY);
+}
+
+function flood(startX, startY)
+{
+	var pixelPos = (startY*canvas.width + startX)*4;
+	var r = colorLayerData.data[pixelPos + 0];
+	var g = colorLayerData.data[pixelPos + 1];
+	var b = colorLayerData.data[pixelPos + 2];
+	var a = colorLayerData.data[pixelPos + 3];
+	
+	clickedColorR = r;
+	clickedColorG = g;
+	clickedColorB = b;
+	var curColorIndex = HexToRGB(document.getElementById('color').value);
+	newColorR = curColorIndex['R'];
+	newColorG = curColorIndex['G'];
+	newColorB = curColorIndex['B'];
+	if(clickedColorR == newColorR && clickedColorG == newColorG && clickedColorB == newColorB)
+	{
+		$("#loader").hide();
+	 	return false;
+	}
+    pixelStack = [[startX, startY]];
+	floodFill(pixelPos);
+} 
+
+function floodFill(pixelPos)
+{
+	var newPos, x, y, pixelPos;
+	while(pixelStack.length)
+    {
+		newPos = pixelStack.pop();
+		x = newPos[0];
+		y = newPos[1];
+		pixelPos = (x + y * canvas.width) * 4;
+		if(matchClickedColor(pixelPos))
+		{
+			colorLayerData.data[pixelPos + 0]   = newColorR; // red
+		    colorLayerData.data[pixelPos + 1]   = newColorG; // green
+		    colorLayerData.data[pixelPos + 2]   = newColorB; // blue
+		}
+		
+		/* North */
+		pixelPos = (x + ( parseInt(y - 1,10)  * canvas.width)) * 4;
+		if(matchClickedColor(pixelPos))
+		{
+			pixelStack.push([x, parseInt(y - 1,10)]);
+		}
+		
+		/* South */
+		
+		pixelPos = (x + (parseInt(y + 1,10)  * canvas.width)) * 4;
+		if(matchClickedColor(pixelPos))
+		{
+			pixelStack.push([x, parseInt(y + 1,10)]);
+		}
+		
+		
+		 /* West */
+		 
+		pixelPos = (parseInt(x - 1,10) + y * canvas.width) * 4;
+		if(matchClickedColor(pixelPos))
+		{
+			pixelStack.push([parseInt(x - 1,10), y]);
+		}
+		
+		 /* East */
+		 
+		pixelPos = (parseInt(x + 1,10) + y * canvas.width) * 4;
+		if(matchClickedColor(pixelPos))
+		{
+			pixelStack.push([parseInt(x + 1,10), y]);
+		}
+    }
+		$("#loader").hide();
+	context.putImageData(colorLayerData, 0, 0);
+}
+function isSimilarAsWhite(r,g,b)
+{
+    return (r >= 88 && g >= 88 && b >= 88);
+}
+function matchClickedColor(pixelPos)
+{
+	r = colorLayerData.data[pixelPos];	
+	g = colorLayerData.data[pixelPos+1];	
+	b = colorLayerData.data[pixelPos+2];
+	
+	// If the current pixel matches the clicked color
+	if(r == clickedColorR && g == clickedColorG && b == clickedColorB)
+		return true;
+
+	// If current pixel matches the new color
+	if(r == newColorR && g == newColorG && b == newColorB)
+		return false;
+	//return true;
+	if(isSimilarAsWhite(r,g,b) && isSimilarAsWhite(clickedColorR,clickedColorG,clickedColorB))
+		return true;
+}
+</script>
